@@ -129,7 +129,8 @@ docker-compose ps
 # Now we need to stop and remove the running services and start the new services.
 
 
-docker-compose stop; docker-compose rm -f
+docker-compose stop 
+docker-compose rm -f
 docker-compose up -d
 # We will scale this to three with the following command.
 docker-compose scale web=3
@@ -138,6 +139,6 @@ docker-compose scale web=3
 
 
 # You can stop the services and remove the hosts using the following commands.
-docker-compose down
-docker-machine stop consul master slave
-docker-machine rm consul master slave
+# docker-compose down
+# docker-machine stop consul master slave
+# docker-machine rm consul master slave
