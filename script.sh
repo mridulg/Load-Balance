@@ -49,10 +49,10 @@ docker-machine create \
   --swarm-discovery="consul://${KV_IP}:8500" \
   --engine-opt="cluster-store=consul://${KV_IP}:8500" \
   --engine-opt="cluster-advertise=eth0:2376" \
-  slave1
+  slave
 
 # We will set the private IP for this as SLAVE1_IP.
-export SLAVE1_IP=$(docker-machine ssh slave1 'ifconfig eth0 | grep "inet addr:" | cut -d: -f2 | cut -d" " -f1')
+export SLAVE_IP=$(docker-machine ssh slave 'ifconfig eth0 | grep "inet addr:" | cut -d: -f2 | cut -d" " -f1')
 
 
 # You can create more nodes in the swarm by repeating these commands by just changing the hostname.
@@ -73,7 +73,7 @@ eval $(docker-machine env slave)
 
 docker run -d \
   --name=registrator \
-  -h ${SLAVE1_IP} \
+  -h ${SLAVE_IP} \
   --volume=/var/run/docker.sock:/tmp/docker.sock \
   gliderlabs/registrator:v6 \
   consul://${KV_IP}:8500
@@ -118,3 +118,8 @@ docker-compose ps
 # As we increase and decrease the instances of the service, we need to automatically update the load balancer.
 
 
+
+
+docker-compose stop; docker-compose rm -f
+docker-compose up -d
+docker-compose scale web=3
