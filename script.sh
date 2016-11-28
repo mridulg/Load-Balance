@@ -90,9 +90,31 @@ eval $(docker-machine env -swarm master)
 # 
 # DOCKER COMPOSE
 # 
+# See the `docker-compose.yml` file 
+
+# The first service is web and it contains the image hanzel/tutum-nodejs-redis, which is the node.js application.
+# We are pulishing the port 4000 inside the container. It will be mapped to some port of the host. We need to setup some environment variables:
+
+# APP_PORT: Port to run the Node.js application.
+# REDIS_IP: The IP of the redis instance.
+# REDIS_PORT: The PORT of the redis instance.
+# The second service is the official redis image. For persistant data storage, we are creating a data volumes named redis-data.
+# This volume is of the type local, so the data is stored in the local host system.
+
+# The services in the same network are linked. Here, both these services are in the back-tier network which is of the type overlay.
+# The overlay network allow multi-host networking, this allows the service to be linked even if the these are in different hosts.
+docker-compose up -d
+
+# Check details about the running services with the command docker-compose ps
+docker-compose ps
 
 
+# 
+# LOAD BALANCER
+# 
 
-
+# We have a single instance of the app running.
+# We need to now implement a load balancer that can distribute the traffic across all the instances of this service.
+# As we increase and decrease the instances of the service, we need to automatically update the load balancer.
 
 

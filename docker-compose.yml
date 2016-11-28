@@ -1,0 +1,32 @@
+version: '2'
+
+services:
+  web:
+    image: hanzel/tutum-nodejs-redis
+    ports:
+      - "4000"
+    environment:
+      - APP_PORT=4000
+      - REDIS_IP=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - back-tier
+
+  redis:
+    image: redis
+    container_name: redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - back-tier
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  back-tier:
+    driver: overlay
