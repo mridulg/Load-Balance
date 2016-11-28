@@ -117,9 +117,27 @@ docker-compose ps
 # We need to now implement a load balancer that can distribute the traffic across all the instances of this service.
 # As we increase and decrease the instances of the service, we need to automatically update the load balancer.
 
+# We have new service name lb. It is build using Dockerfile in the current directory. The port 80 of the container is mapped to port 80 of the host. We need to set up three environment variables:
 
+# constraint:node: The name of the node where this service should run. We want the load balancing to always run on the master node.
+# APP_NAME: The image name of the service you need to load balance. Here, it is tutum-nodejs-redis. You can load balance any service by providing its name here.
+# CONSUL_URL: The url of consul. We are using the KV_IP environment variable for this.
+# We have a new overlay network named front-tier. This connects lb and web services. Note that, the load balancer doesn’t need to connect to redis, so these are put in two different networks. The web services is connected to both these networks.
+
+# Instead of building a new image, you may use the image hanzel/load-balancing-swarm. Just replace the line build: . with image: hanzel/load-balancing-swarm.
+
+# Now we need to stop and remove the running services and start the new services.
 
 
 docker-compose stop; docker-compose rm -f
 docker-compose up -d
+# We will scale this to three with the following command.
 docker-compose scale web=3
+
+
+
+
+# You can stop the services and remove the hosts using the following commands.
+docker-compose down
+docker-machine stop consul master slave
+docker-machine rm consul master slave
