@@ -52,12 +52,44 @@ docker-machine create \
   slave1
 
 # We will set the private IP for this as SLAVE1_IP.
-export SLAVE1_IP=$(docker-machine ssh slave 'ifconfig eth0 | grep "inet addr:" | cut -d: -f2 | cut -d" " -f1')
+export SLAVE1_IP=$(docker-machine ssh slave1 'ifconfig eth0 | grep "inet addr:" | cut -d: -f2 | cut -d" " -f1')
 
 
+# You can create more nodes in the swarm by repeating these commands by just changing the hostname.
+# We also need to have a registrator service running in each of these hosts to keep track of all services running in each host.
+# The version 6 of gliderlabs/registrator image is used for this.
+# We need to connect our client to each of these hosts and run the registrator image.
+
+eval $(docker-machine env master)
+
+docker run -d \
+  --name=registrator \
+  -h ${MASTER_IP} \
+  --volume=/var/run/docker.sock:/tmp/docker.sock \
+  gliderlabs/registrator:v6 \
+  consul://${KV_IP}:8500
+
+eval $(docker-machine env slave)
+
+docker run -d \
+  --name=registrator \
+  -h ${SLAVE1_IP} \
+  --volume=/var/run/docker.sock:/tmp/docker.sock \
+  gliderlabs/registrator:v6 \
+  consul://${KV_IP}:8500
 
 
+# We can see all the hosts created with docker-machine with the command docker-machine ls.
+docker-machine ls
 
+
+# We can now connect the docker client to the swarm.
+# For this, we use -swarm parameter with the swarm master.
+eval $(docker-machine env -swarm master)
+
+# 
+# DOCKER COMPOSE
+# 
 
 
 
